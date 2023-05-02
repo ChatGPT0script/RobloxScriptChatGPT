@@ -1,0 +1,74 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local highlightColor = Color3.new(1, 1, 1) -- Белый цвет подсветки
+local highlightTransparency = 0.35 -- Прозрачность подсветки (35%)
+local highlightDuration = 2 -- Длительность подсветки в секундах
+
+local function createHighlight(player)
+    local character = player.Character
+    if not character then return end
+
+    local highlightFolder = character:FindFirstChild("Highlights")
+    if not highlightFolder then
+        highlightFolder = Instance.new("Folder")
+        highlightFolder.Name = "Highlights"
+        highlightFolder.Parent = character
+    end
+
+    local highlightPart = highlightFolder:FindFirstChild("HighlightPart")
+    if not highlightPart then
+        highlightPart = Instance.new("Part")
+        highlightPart.Name = "HighlightPart"
+        highlightPart.Transparency = 1
+        highlightPart.Anchored = true
+        highlightPart.CanCollide = false
+        highlightPart.Size = character:FindFirstChild("HumanoidRootPart").Size
+        highlightPart.Parent = highlightFolder
+    end
+
+    local highlightTexture = Instance.new("Decal")
+    highlightTexture.Name = "HighlightTexture"
+    highlightTexture.Texture = "rbxassetid://499834650" -- Идентификатор текстуры с белым цветом
+    highlightTexture.Transparency = highlightTransparency
+    highlightTexture.Face = "All"
+    highlightTexture.Parent = highlightPart
+
+    local highlightBillboard = Instance.new("BillboardGui")
+    highlightBillboard.Name = "HighlightBillboard"
+    highlightBillboard.Size = UDim2.new(2, 0, 2, 0)
+    highlightBillboard.StudsOffset = Vector3.new(0, 2, 0) -- Расположение над игроком
+    highlightBillboard.Adornee = highlightPart
+    highlightBillboard.Parent = highlightPart
+
+    local playerNameLabel = Instance.new("TextLabel")
+    playerNameLabel.Name = "PlayerNameLabel"
+    playerNameLabel.Size = UDim2.new(1, 0, 0.2, 0)
+    playerNameLabel.Position = UDim2.new(0, 0, 0.8, 0) -- Позиция ника
+    playerNameLabel.BackgroundTransparency = 1
+    playerNameLabel.Text = player.Name
+    playerNameLabel.TextColor3 = Color3.new(1, 1, 1)
+    playerNameLabel.TextScaled = true
+    playerNameLabel.Parent = highlightBillboard
+
+    return highlightPart
+end
+
+local function highlightPlayer(player)
+    local highlightPart = createHighlight(player)
+    if highlightPart then
+        Lighting.CurrentCamera.CameraSubject = highlightPart
+        wait(highlightDuration)
+        highlightPart:Destroy()
+    end
+end
+
+local function onKeyPress(input)
+    if input.KeyCode == Enum.KeyCode.F then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= Players.LocalPlayer then
+                highlightPlayer(player)
+            end
+        end
+    elseif
